@@ -6,17 +6,17 @@
         {
             "label": "Build Dummy Process",
             "type": "shell",
-            "command": "g++ ${workspaceFolder}/DummyProcess/main.cpp -o ${workspaceFolder}/DummyProcess/bin/dummyprocess.exe"
+            "command": "g++ ${workspaceFolder}/DummyProcess/main.cpp -o ${workspaceFolder}/x64/Release/dummyprocess.exe"
         },
         {
             "label": "Build DLL",
             "type": "shell",
-            "command": "g++ -DBUILD_LIB -shared ${workspaceFolder}/DllSource/dllmain.cpp -o ${workspaceFolder}/DllSource/bin/dlltobeinjected.dll"
+            "command": "g++ -DBUILD_LIB -shared ${workspaceFolder}/DllSource/dllmain.cpp -o ${workspaceFolder}/x64/Release/dlltobeinjected.dll"
         },
         {
             "label": "Build Injector 64bit",
             "type": "shell",
-            "command": "g++ -std=c++17 -D_WIN64 ${workspaceFolder}/DllInjector/main.cpp  ${workspaceFolder}/DllInjector/InjectionMethods/*.cpp ${workspaceFolder}/DllInjector/utils/*.cpp -o ${workspaceFolder}/DllInjector/bin/injector64.exe"
+            "command": "g++ -std=c++17 -D_WIN64 ${workspaceFolder}/DllInjector/main.cpp  ${workspaceFolder}/DllInjector/InjectionMethods/*.cpp ${workspaceFolder}/DllInjector/utils/*.cpp -o ${workspaceFolder}/x64/Release/injector64.exe"
         },
         {
             "label": "Build All",
