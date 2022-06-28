@@ -1,0 +1,31 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Build Dummy Process",
+            "type": "shell",
+            "command": "g++ ${workspaceFolder}/DummyProcess/main.cpp -o ${workspaceFolder}/DummyProcess/bin/dummyprocess.exe"
+        },
+        {
+            "label": "Build DLL",
+            "type": "shell",
+            "command": "g++ -DBUILD_LIB -shared ${workspaceFolder}/DllSource/dllmain.cpp -o ${workspaceFolder}/DllSource/bin/dlltobeinjected.dll"
+        },
+        {
+            "label": "Build Injector 64bit",
+            "type": "shell",
+            "command": "g++ -std=c++17 -D_WIN64 ${workspaceFolder}/DllInjector/main.cpp  ${workspaceFolder}/DllInjector/InjectionMethods/*.cpp ${workspaceFolder}/DllInjector/utils/*.cpp -o ${workspaceFolder}/DllInjector/bin/injector64.exe"
+        },
+        {
+            "label": "Build All",
+            "dependsOn": [
+                "Build Dummy Process",
+                "Build DLL",
+                "Build Injector 64bit"
+            ],
+            "problemMatcher": []
+        }
+    ]
+}
