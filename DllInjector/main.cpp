@@ -39,7 +39,7 @@ int main(int argc, const char** argv, const char** envp) {
 
         counter++;
 
-        if (counter > 5) {
+        if (counter > 4) {
             printfError("Unable to start the target process after %d tries\n", counter);
             exit(1);
         }
