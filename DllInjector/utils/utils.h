@@ -11,3 +11,4 @@ std::string getCwd();
 std::string getLastErrorAsString();
 BYTEARRAY isValidDll(std::string dllpath);
 DWORD getProcessPid(const char* szProcName);
+void startProcess(std::string path, LPSTR lpCommandLine);

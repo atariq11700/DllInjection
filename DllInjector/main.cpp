@@ -18,20 +18,35 @@
     const char* TARGET_PROCESS_NAME = "dummyprocess.exe";
 
     //relative path to cwd
-    const char* DLL_PATH =  "\\DllSource\\bin\\dlltobeinjected.dll";
+    const char* DLL_PATH =  "\\..\\x64\\Release\\dlltobeinjected.dll";
 
 int main(int argc, const char** argv, const char** envp) {
 
-    DWORD dwPid = getProcessPid(TARGET_PROCESS_NAME);
+    DWORD dwPid;
+    int counter = 0;
 
-    if (!dwPid) {
-        printfError("Unable to find the target process\n");
-        printfInfo("Starting process\n");
+    do {
+        dwPid = getProcessPid(TARGET_PROCESS_NAME);
 
-        exit(1);
-    } else {
-        printfSucc("Found target process pid: %d\n", dwPid);
-    }
+        if (!dwPid) {
+            printfError("Unable to find the target process\n");
+            printfInfo("Starting process\n");
+            startProcess(getCwd() + "\\..\\x64\\Release\\" + TARGET_PROCESS_NAME, (LPSTR)argv[1]);
+        }
+        else {
+            printfSucc("Found target process pid: %d\n", dwPid);
+        }
+
+        counter++;
+
+        if (counter > 5) {
+            printfError("Unable to start the target process after %d tries\n", counter);
+            exit(1);
+        }
+
+    } while (!dwPid);
+
+    
 
     std::vector<injectionmethod*> methods = {new NativeInjection(), new ManualMap(), new Reflective()};
 
