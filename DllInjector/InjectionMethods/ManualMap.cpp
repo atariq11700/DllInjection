@@ -27,8 +27,6 @@ void __stdcall loader(ManualMapLoaderData* pmmData);
 
 
 bool ManualMap::inject(DWORD dwTargetPid, std::string dllpath) {
-    const char* szDllPath = dllpath.c_str();
-
     //open target process
     HANDLE hTargetProc = OpenProcess(PROCESS_ALL_ACCESS, false, dwTargetPid);
 
