@@ -152,31 +152,5 @@ DWORD getProcessPid(const char* szProcName) {
 void startProcess(std::string path, LPSTR lpCommandLine) {
 
     printfInfo("Attempting to start %s\n", path.c_str());
-    //STARTUPINFO si;
-    //PROCESS_INFORMATION pi;
-
-    //ZeroMemory(&si, sizeof(si));
-    //ZeroMemory(&pi, sizeof(pi));
-    //si.cb = sizeof(si);
-
-
-    //// start the program up
-    //if (!CreateProcess(path.c_str(),   // the path
-    //    lpCommandLine,        // Command line
-    //    NULL,           // Process handle not inheritable
-    //    NULL,           // Thread handle not inheritable
-    //    FALSE,          // Set handle inheritance to FALSE
-    //    0,              // No creation flags
-    //    NULL,           // Use parent's environment block
-    //    NULL,           // Use parent's starting directory 
-    //    &si,            // Pointer to STARTUPINFO structure
-    //    &pi             // Pointer to PROCESS_INFORMATION structure (removed extra parentheses)
-    //)) {
-    //    printfError("Error starting process: %s\n", getLastErrorAsString().c_str());
-    //}
-    //// Close process and thread handles. 
-    //CloseHandle(pi.hProcess);
-    //CloseHandle(pi.hThread);
-
     ShellExecute(NULL, "open", path.c_str(), NULL, NULL, SW_SHOWDEFAULT);
 }
