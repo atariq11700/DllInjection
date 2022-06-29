@@ -137,7 +137,6 @@
   <ItemGroup>
     <ClCompile Include="InjectionMethods\ManualMap.cpp" />
     <ClCompile Include="InjectionMethods\NativeInjection.cpp" />
-    <ClCompile Include="InjectionMethods\Reflective.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="utils\utils.cpp" />
   </ItemGroup>
@@ -145,7 +144,6 @@
     <ClInclude Include="InjectionMethods\injector.h" />
     <ClInclude Include="InjectionMethods\ManualMap.h" />
     <ClInclude Include="InjectionMethods\NativeInjection.h" />
-    <ClInclude Include="InjectionMethods\Reflective.h" />
     <ClInclude Include="utils\log.h" />
     <ClInclude Include="utils\utils.h" />
   </ItemGroup>

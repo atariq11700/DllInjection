@@ -13,7 +13,6 @@
 #include "InjectionMethods/injector.h"
 #include "InjectionMethods/NativeInjection.h"
 #include "InjectionMethods/ManualMap.h"
-#include "InjectionMethods/Reflective.h"
 
 
 
@@ -67,7 +66,7 @@ int main(int argc, const char** argv, const char** envp) {
 
     
 
-    std::vector<injectionmethod*> methods = {new NativeInjection(), new ManualMap(), new Reflective()};
+    std::vector<injectionmethod*> methods = {new NativeInjection(), new ManualMap()};
 
 
     for (int i = 1; i < methods.size() + 1; i++) {

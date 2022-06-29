@@ -27,9 +27,6 @@
     <ClCompile Include="InjectionMethods\NativeInjection.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="InjectionMethods\Reflective.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="utils\log.h">
@@ -45,9 +42,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="InjectionMethods\NativeInjection.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="InjectionMethods\Reflective.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
