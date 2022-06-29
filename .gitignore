@@ -9,3 +9,6 @@ bin/*
 x64/
 .vs/
 bin/
+Win32/
+Debug/
+Release/
