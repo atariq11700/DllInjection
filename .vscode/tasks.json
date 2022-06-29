@@ -16,7 +16,7 @@
         {
             "label": "Build Injector 64bit",
             "type": "shell",
-            "command": "g++ -std=c++17 -D_WIN64 ${workspaceFolder}/DllInjector/main.cpp  ${workspaceFolder}/DllInjector/InjectionMethods/*.cpp ${workspaceFolder}/DllInjector/utils/*.cpp -o ${workspaceFolder}/x64/Release/injector64.exe"
+            "command": "g++ -std=c++17 -D_WIN64 -DNDEBUG ${workspaceFolder}/DllInjector/main.cpp  ${workspaceFolder}/DllInjector/InjectionMethods/*.cpp ${workspaceFolder}/DllInjector/utils/*.cpp -o ${workspaceFolder}/x64/Release/injector64.exe"
         },
         {
             "label": "Build All",

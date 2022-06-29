@@ -14,14 +14,14 @@ typedef struct _ManualMapLoaderData {
     HINSTANCE           pDllBaseAddr;
 } ManualMapLoaderData, *pManualMapLoaderData;
 
-typedef struct _RelocationEntry {
-    DWORD dwPageRVA;
-    DWORD dwBlockSize;
-    struct {
-        WORD offset : 12;
-        WORD type : 4;
-    } items[1];
-} RelocationEntry, *pRelocationEntry;
+#define _CHECK_RELOC64(relocInfo) ((relocInfo >> 0x0C) == IMAGE_REL_BASED_DIR64)
+#define _CHECK_RELOC32(relocInfo) ((relocInfo >> 0x0C) == IMAGE_REL_BASED_HIGHLOW)
+#if _WIN64 == 1
+    #define NEEDS_RELOC _CHECK_RELOC64
+#elif _WIN32 == 1
+    #define NEEDS_RELOC _CHECK_RELOC32
+#endif
+
 
 void __stdcall loader(ManualMapLoaderData* pmmData);
 
@@ -111,7 +111,7 @@ bool ManualMap::inject(DWORD dwTargetPid, std::string dllpath) {
     loaderData.pDllBaseAddr = (HINSTANCE)pTargetBaseAddr;
 
     //write loader data at base addr
-    WriteProcessMemory(hTargetProc, pTargetBaseAddr, &loaderData, sizeof(ManualMapLoaderData), nullptr);
+    WriteProcessMemory(hTargetProc, pTargetBaseAddr, &loaderData, sizeof(loaderData), nullptr);
     printfInfo("Wrote the loader data to the base addr inside the target process at 0x%llX\n", pTargetBaseAddr);
 
     //allocate memory for loader function
@@ -159,15 +159,69 @@ void __stdcall loader(ManualMapLoaderData* pmmData) {
 
     f_DllMain _DllMain = (f_DllMain)(pDllOptHeader->AddressOfEntryPoint + pBaseAddr);
 
-    uint64_t locationDelta = (ULONGLONG)pBaseAddr - pDllOptHeader->ImageBase;
 
+    //check for reloc info
+    BYTE* locationDelta = pBaseAddr - pDllOptHeader->ImageBase;
     if (locationDelta) {
+        if (!pDllOptHeader->DataDirectory[IMAGE_DIRECTORY_ENTRY_BASERELOC].Size) {
+            return;
+        }
+
+        IMAGE_BASE_RELOCATION* pRelocData = (IMAGE_BASE_RELOCATION*)(pBaseAddr + pDllOptHeader->DataDirectory[IMAGE_DIRECTORY_ENTRY_BASERELOC].VirtualAddress);
+        while (pRelocData->VirtualAddress) {
+            UINT numOfEntries = (pRelocData->SizeOfBlock - sizeof(IMAGE_BASE_RELOCATION)) / sizeof(WORD);
+            WORD* pRelativeInfo = (WORD*)(pRelocData + 1);
+            for (int i = 0; i != numOfEntries; i++, pRelativeInfo++) {
+                if (NEEDS_RELOC(*pRelativeInfo)) {
+                    uintptr_t* pPatch = (uintptr_t*)(pBaseAddr + pRelocData->VirtualAddress + ((*pRelativeInfo) & 0xFFF));
+                    *pPatch += (uintptr_t)locationDelta;
+                }
+            }
+            pRelocData = (IMAGE_BASE_RELOCATION*)((BYTE*)pRelocData + pRelocData->SizeOfBlock);
+        }
     }
 
 
+    //check for iat info
+    if (pDllOptHeader->DataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT].Size) {
+        IMAGE_IMPORT_DESCRIPTOR* pImportDesc = (IMAGE_IMPORT_DESCRIPTOR*)(pBaseAddr + pDllOptHeader->DataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT].VirtualAddress);
+
+        while (pImportDesc->Name) {
+            char* szModule = (char*)(pBaseAddr + pImportDesc->Name);
+            HINSTANCE hLoadedModule = _LoadLibraryA(szModule);
+
+            uintptr_t* pThunk = (uintptr_t*)(pBaseAddr + pImportDesc->OriginalFirstThunk);
+            uintptr_t* pFunc = (uintptr_t*)(pBaseAddr + pImportDesc->FirstThunk);
+
+            if (!pThunk) {
+                pThunk = pFunc;
+            }
+
+            for (; *pThunk; pThunk++, pFunc++) {
+                if (IMAGE_SNAP_BY_ORDINAL(*pThunk)) {
+                    *pFunc = (uintptr_t)_GetProcAddress(hLoadedModule, (char*)(*pThunk & 0xFFFF));
+                }
+                else {
+                    IMAGE_IMPORT_BY_NAME* pImportName = (IMAGE_IMPORT_BY_NAME*)(pBaseAddr + (*pThunk));
+                    *pFunc = (uintptr_t)_GetProcAddress(hLoadedModule, (LPCSTR)(pImportName->Name));
+                }
+            }
+            pImportDesc++;
+        }
+    }
+
+    //call tls callbacks
+    if (pDllOptHeader->DataDirectory[IMAGE_DIRECTORY_ENTRY_TLS].Size) {
+        IMAGE_TLS_DIRECTORY* pTlsDir = (IMAGE_TLS_DIRECTORY*)(pBaseAddr + pDllOptHeader->DataDirectory[IMAGE_DIRECTORY_ENTRY_TLS].VirtualAddress);
+        PIMAGE_TLS_CALLBACK* pTlsCallback = (PIMAGE_TLS_CALLBACK*)(pTlsDir->AddressOfCallBacks);
 
 
+        for (; pTlsCallback && *pTlsCallback; pTlsCallback++) {
+            (*pTlsCallback)(pBaseAddr, DLL_PROCESS_ATTACH, nullptr);
+        }
+    }
 
+    _DllMain((HMODULE)pBaseAddr, DLL_PROCESS_ATTACH, nullptr);
 }
 
 void ManualMap::printDescription() {
