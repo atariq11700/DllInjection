@@ -18,7 +18,7 @@
     const char* TARGET_PROCESS_NAME = "dummyprocess.exe";
 
     //relative path to cwd
-    const char* DLL_PATH =  "\\..\\x64\\Release\\dlltobeinjected.dll";
+    const char* DLL_PATH =  "\\x64\\Release\\dlltobeinjected.dll";
 
 int main(int argc, const char** argv, const char** envp) {
 
@@ -31,7 +31,7 @@ int main(int argc, const char** argv, const char** envp) {
         if (!dwPid) {
             printfError("Unable to find the target process\n");
             printfInfo("Starting process\n");
-            startProcess(getCwd() + "\\..\\x64\\Release\\" + TARGET_PROCESS_NAME, (LPSTR)argv[1]);
+            startProcess(getCwd() + "\\x64\\Release\\" + TARGET_PROCESS_NAME, (LPSTR)argv[1]);
         }
         else {
             printfSucc("Found target process pid: %d\n", dwPid);
