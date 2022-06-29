@@ -34,6 +34,7 @@
 #endif
 
     std::string TARGET_PROCESS_NAME = "dummyprocess.exe";
+    //std::string TARGET_PROCESS_NAME = "notepad.exe";
     std::string DLL_NAME =  "dlltobeinjected.dll";
 
 
