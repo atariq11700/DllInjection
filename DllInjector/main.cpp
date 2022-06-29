@@ -15,10 +15,28 @@
 #include "InjectionMethods/ManualMap.h"
 #include "InjectionMethods/Reflective.h"
 
-    const char* TARGET_PROCESS_NAME = "dummyprocess.exe";
 
-    //relative path to cwd
-    const char* DLL_PATH =  "\\x64\\Release\\dlltobeinjected.dll";
+
+
+#if _WIN64 == 1
+    #if  NDEBUG == 1
+        std::string reletiveDir = "\\x64\\Release\\";
+    #elif _DEBUG == 1
+        std::string reletiveDir = "\\x64\\Debug\\";
+    #endif
+#elif _WIN32 == 1
+    #if NDEBUG == 1
+        std::string reletiveDir = "\\Win32\\Release\\";
+    #elif _DEBUG == 1
+        std::string reletiveDir = "\\Win32\\Debug\\";
+    #endif
+
+#endif
+
+    std::string TARGET_PROCESS_NAME = "dummyprocess.exe";
+    std::string DLL_NAME =  "dlltobeinjected.dll";
+
+
 
 int main(int argc, const char** argv, const char** envp) {
 
@@ -26,12 +44,12 @@ int main(int argc, const char** argv, const char** envp) {
     int counter = 0;
 
     do {
-        dwPid = getProcessPid(TARGET_PROCESS_NAME);
+        dwPid = getProcessPid(TARGET_PROCESS_NAME.c_str());
 
         if (!dwPid) {
             printfError("Unable to find the target process\n");
             printfInfo("Starting process\n");
-            startProcess(getCwd() + "\\x64\\Release\\" + TARGET_PROCESS_NAME, (LPSTR)argv[1]);
+            startProcess(getCwd() + reletiveDir + TARGET_PROCESS_NAME, (LPSTR)argv[1]);
         }
         else {
             printfSucc("Found target process pid: %d\n", dwPid);
@@ -63,7 +81,7 @@ int main(int argc, const char** argv, const char** envp) {
 
     int methodChoice = std::stoi(input);
 
-    if (methods.at(methodChoice - 1)->inject(dwPid, getCwd() + DLL_PATH)) {
+    if (methods.at(methodChoice - 1)->inject(dwPid, getCwd() + reletiveDir + DLL_NAME)) {
         printfSucc("Injection succeded\n");
         std::cin.get();
         return 0;
