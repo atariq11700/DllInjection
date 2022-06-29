@@ -154,10 +154,10 @@ void __stdcall loader(ManualMapLoaderData* pmmData) {
 
      //get image headers
     IMAGE_NT_HEADERS*       pDllNtHeader    =   (IMAGE_NT_HEADERS*)(pBaseAddr + ((IMAGE_DOS_HEADER*)pBaseAddr)->e_lfanew);
-    IMAGE_OPTIONAL_HEADER*  pDllOptHeader   =   (IMAGE_OPTIONAL_HEADER*)&pDllNtHeader->OptionalHeader;
-    IMAGE_FILE_HEADER*      pDllFileHeader  =   (IMAGE_FILE_HEADER*)&pDllNtHeader->FileHeader;
+    IMAGE_OPTIONAL_HEADER*  pDllOptHeader   =   (IMAGE_OPTIONAL_HEADER*)&(pDllNtHeader->OptionalHeader);
+    IMAGE_FILE_HEADER*      pDllFileHeader  =   (IMAGE_FILE_HEADER*)&(pDllNtHeader->FileHeader);
 
-    f_DllMain _DllMain = (f_DllMain)(pDllOptHeader->AddressOfEntryPoint + pBaseAddr);
+    f_DllMain _DllMain = (f_DllMain)(pBaseAddr + pDllOptHeader->AddressOfEntryPoint);
 
 
     //check for reloc info
