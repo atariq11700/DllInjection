@@ -14,11 +14,13 @@
 #include "InjectionMethods/NativeInjection.h"
 #include "InjectionMethods/ManualMap.h"
 
+#define vsbuild 1
+#define x64bdg 0
 
 
-
+#if vsbuild == 1
 #if _WIN64 == 1
-    #if  NDEBUG == 1
+    #if NDEBUG == 1
         std::string reletiveDir = "\\x64\\Release\\";
     #elif _DEBUG == 1
         std::string reletiveDir = "\\x64\\Debug\\";
@@ -29,7 +31,11 @@
     #elif _DEBUG == 1
         std::string reletiveDir = "\\Win32\\Debug\\";
     #endif
-
+#endif
+#else
+    #if x64bdg == 1
+        std::string reletiveDir = "\\";
+    #endif
 #endif
 
     std::string TARGET_PROCESS_NAME = "dummyprocess.exe";
@@ -40,19 +46,22 @@
 
 int main(int argc, const char** argv, const char** envp) {
 
-    DWORD dwPid;
+    PROCESSENTRY32 peInfo;
     int counter = 0;
 
     do {
-        dwPid = getProcessPid(TARGET_PROCESS_NAME.c_str());
+        //dwPid = getProcessPid(TARGET_PROCESS_NAME.c_str());
+        peInfo  = getProcessEntryInfo();
+        printfInfo("Target Process: [%d] %s\n", peInfo.th32ProcessID, peInfo.szExeFile);
 
-        if (!dwPid) {
-            printfError("Unable to find the target process\n");
-            printfInfo("Starting process\n");
-            startProcess(getCwd() + reletiveDir + TARGET_PROCESS_NAME, (LPSTR)argv[1]);
+
+        if (!peInfo.th32ProcessID) {
+            printfError("PID 0 not valid\n");
+            //printfInfo("Starting process\n");
+            //startProcess(getCwd() + reletiveDir + TARGET_PROCESS_NAME, (LPSTR)argv[1]);
         }
         else {
-            printfSucc("Found target process pid: %d\n", dwPid);
+            printfSucc("Found target process pid: %d\n", peInfo.th32ProcessID);
         }
 
         counter++;
@@ -62,7 +71,7 @@ int main(int argc, const char** argv, const char** envp) {
             exit(1);
         }
 
-    } while (!dwPid);
+    } while (!peInfo.th32ProcessID);
 
     
 
@@ -81,7 +90,7 @@ int main(int argc, const char** argv, const char** envp) {
 
     int methodChoice = std::stoi(input);
 
-    if (methods.at(methodChoice - 1)->inject(dwPid, getCwd() + reletiveDir + DLL_NAME)) {
+    if (methods.at(methodChoice - 1)->inject(peInfo.th32ProcessID, getCwd() + reletiveDir + DLL_NAME)) {
         printfSucc("Injection succeded\n");
         std::cin.get();
         return 0;

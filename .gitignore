@@ -8,6 +8,7 @@ bin/*
 *.o
 x64/
 .vs/
+.vscode/
 bin/
 Win32/
 Debug/

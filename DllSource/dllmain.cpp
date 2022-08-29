@@ -15,8 +15,8 @@ BOOL APIENTRY DllMain( HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpRese
 
 
             std::cout << "Hello From DLL\n";
-            Sleep(2000);
-            exit(0);
+            //Sleep(2000);
+            //exit(0);
         };
         break;
         case DLL_THREAD_ATTACH:

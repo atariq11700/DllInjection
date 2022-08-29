@@ -146,8 +146,11 @@ void __stdcall loader(ManualMapLoaderData* pmmData) {
         return;
     }
 
+
     f_LoadLibraryA _LoadLibraryA = pmmData->pLoadLibraryA;
     f_GetProcAddress _GetProcAddress = pmmData->pGetProcAddress;
+
+
     BYTE* pBaseAddr = (BYTE*)pmmData;
 
      //get image headers

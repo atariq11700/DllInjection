@@ -2,7 +2,8 @@
 #include "log.h"
 
 #include <TlHelp32.h>
-
+#include <vector>
+#include <string>
 
 std::string getCwd() {
     char buff[MAX_PATH];
@@ -125,10 +126,11 @@ BYTEARRAY isValidDll(std::string dllpath) {
 }
 
 
-DWORD getProcessPid(const char* szProcName) {
+PROCESSENTRY32 getProcessEntryInfo(const char* szProcName) {
     DWORD dwPid = 0;
 
     PROCESSENTRY32 pe32Entry;
+    ZeroMemory(&pe32Entry, sizeof(pe32Entry));
     pe32Entry.dwSize = sizeof(PROCESSENTRY32);
 
     HANDLE hProcSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, NULL);
@@ -138,15 +140,32 @@ DWORD getProcessPid(const char* szProcName) {
         exit(1);
     }
 
-    do {
-        if (_stricmp(szProcName, pe32Entry.szExeFile) == 0) {
-            dwPid = pe32Entry.th32ProcessID;
-            break;
-        }
-    } while (Process32Next(hProcSnapshot, &pe32Entry));
-    CloseHandle(hProcSnapshot);
+    if (szProcName && szProcName != "") {
+        do {
+            if (_stricmp(szProcName, pe32Entry.szExeFile) == 0) {
+                CloseHandle(hProcSnapshot);
+                return pe32Entry;
+            }
+        } while (Process32Next(hProcSnapshot, &pe32Entry));
+    }
+    else {
+        int counter = 0;
+        std::vector<PROCESSENTRY32> processes;
+        printf("64bit Processes:\n");
+        printf("--------------------------------------------------------------------\n");
+        printf("[%5s]|%-504s %8s %8s|\n", "#",  "Name", " ", "PID");
+        printf("--------------------------------------------------------------------\n");
+        do {
+            printf("[%5d]|%-50s %8s %8d|\n", ++counter, pe32Entry.szExeFile, " ", pe32Entry.th32ProcessID);
+            processes.push_back(pe32Entry);
+        } while (Process32Next(hProcSnapshot, &pe32Entry));
 
-    return dwPid;
+        printf("Select a process:>");
+        std::string selection;
+        std::cin >> selection;
+        return processes.at(std::stoi(selection) - 1);
+        
+    }
 }
 
 void startProcess(std::string path, LPSTR lpCommandLine) {
